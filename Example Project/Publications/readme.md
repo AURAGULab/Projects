@@ -1,0 +1,1 @@
+This folder will contain all relevant publications for the project. This should include work in progress efforts for project publications and references for the project, in their respective folders.
