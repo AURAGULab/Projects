@@ -1,7 +1,7 @@
 ### Current file versions (This should be at the top of your readme file)
-The currently used code version is smartTrash_20Nov25(this is a link)
-The current 3D Print file version is lid_20Nov25(this is a link)
-The current ... version is ... (link)
+The currently used code version is smartTrash_20Nov25(this is a link)<br>
+The current 3D Print file version is lid_20Nov25(this is a link)<br>
+The current ... version is ... (link)<br>
 
 This example project is intended to serve as the model for each projects individual folder. Each project must contain all of the folders listed along with a readme.md file for the project. 
 
