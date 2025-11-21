@@ -5,3 +5,5 @@ The AU Internal Presentations folder is for events like URFA, CSM Departmental P
 The External Conference Presentations folder is for all presentations given at events external to AU, such as ACS or GAWP.
 
 The Internal Updates folder is for all presentations created for updates internal to the research group.
+
+Other folders can be created as needed.
