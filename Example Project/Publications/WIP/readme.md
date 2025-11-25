@@ -1,0 +1,1 @@
+This folder will contain all documents for any in progress publications that are being worked on.
