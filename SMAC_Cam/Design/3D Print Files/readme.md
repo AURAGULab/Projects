@@ -1,0 +1,2 @@
+### CAD Files
+This folder is where all CAD files for a project will go. If multiple design version exist, versions should have some type of version organization system, at a minimum folders for current/past versions.

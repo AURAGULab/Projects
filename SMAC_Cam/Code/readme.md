@@ -1,0 +1,1 @@
+This folder is where all code for a project should go. Projects should use an organization system to clearly identify version history.
