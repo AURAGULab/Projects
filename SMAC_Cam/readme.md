@@ -13,5 +13,5 @@
 
 SMAC was Seepage is defined as the slow leaking of a liquid through a pourus material. This action can lead to detramental consequences when it goes unmonitored in a dam. Currently, monitoring this requires personnel to go out and observe each location and note what they see. To optimize this process, we developed a camera system to deploy in multiple locations along the Augusta canal. We coined this solution SMAC (Seepage Monitoring at the Augusta Canal). SMAC allows us remotely monitor these sites and establish long term data collection. This device also uses wireless communications and solar charging to make it suitable for long term deployement. 
 
- Current researcher: Patrick Rimbey       Email: primbey@augusta.edu
+ Current researcher: Patrick Rimbey       Email: primbey@augusta.edu <br>
  Project supervisor: Dr. Joseph Hauger    Email: jhauger@augusta.edu
