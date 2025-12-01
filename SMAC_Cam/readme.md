@@ -20,4 +20,4 @@
  ## Focus as of 12/01/2025 - Battery Life 
 
  With our current solar charging and low power measures established we are not hitting out desired lifetime. Currently we are getting a max of two weeks for our device. 
- To try to imporve this we are replacing the 12v 5amph lead acid battery with a LiFePo4 that has similar specs. This is expected to boost the efficiency of solar charging. If that does not work I plan to incorporate a RTC/coin cell solution to use stricter low power methods in the circuit 
+ To try to imporve this we are replacing the 12v 5amph lead acid battery with a LiFePo4 that has similar specs. This is expected to boost the efficiency of solar charging. If that does not work I plan to incorporate a RTC/coin cell solution to use stricter low power methods in the circuit.
