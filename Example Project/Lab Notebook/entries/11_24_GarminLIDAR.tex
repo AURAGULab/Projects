@@ -1,0 +1,284 @@
+\documentclass[../Notebook.tex]{subfiles}
+\begin{document}
+
+\chapter{11/24/2025 Introduction to The Garmin LiDAR Sensor}
+
+A discussion of how to build and program the Arduino UNO to use the Garmin LiDAR sensor and how to use the arduino statistic library to perform averaging and population standard deviation.
+
+\hfill \break
+\noindent Keywords: LiDAR\index{light detection and ranging (LiDAR)}, Garmin LIDAR-Lite Optical Distance Sensor - V3\index{Garmin LIDAR-Lite Optical Distance Sensor - V3}, sensors\index{sensors}, Statistic library\index{Arduino Library - Statistic}
+
+\section{Introduction}
+
+We are currently working on a project involving sensing levels of grass (the ``smart (gr)ass'' project), but the ultimate goal of this project is to build and familiarize ourselves with the tools available to sense the distances from a medium. The ultimate goal of the project is to develop a smart sewer monitor that can remotely monitor sewer water levels. I will be examining the use and programability of a Garmin LiDAR sensor with the ultimate goal being to design a circuit that could put one of these on the underside of a manhole cover.
+
+\section{Materials and Methods}
+
+\subsection{The Hardware}
+
+This project involves the use of an Arduino Uno, two 4.7k$\Omega$ resistors for the I2C communication protocol, a 1000$\mu$F smoothing capacitor and the \href{https://www.adafruit.com/product/4058?srsltid=AfmBOooix_XUUZv2baBJdlpbB4EOxsPUn7eY-pyGtEpFtxUJhBnXUwmq}{Garmin LIDAR-Lite Optical Distance Sensor - V3} (the datasheet for which can be found \href{https://static.garmin.com/pumac/LIDAR_Lite_v3_Operation_Manual_and_Technical_Specifications.pdf}{here})
+
+\subsection{The Circuit}
+
+Figure \ref{garminlidarcircuit} shows the circuit that can be found in the datasheet, but the working circuit I built (seen in Figure \ref{GarminLidarWorkingCircuit}) looked a bit different.
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}{.4\textwidth}
+  \centering
+  \includegraphics[width=.95\linewidth]{../figures/GarminLIDARCircuit}
+  \caption{The circuit illustrated in the Garmin LiDAR's datasheet. Note the 680$\mu$F capacitor and the \textit{lack} of pull up resistors for the SDA and SCL pins.}
+  \label{garminlidarcircuit}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.95\linewidth]{../figures/GarminLIDARWorkingCirc}
+  \caption{The working circuit I built to test the sensor.}
+  \label{GarminLidarWorkingCircuit}
+\end{subfigure}
+\label{LABEL}
+\caption{Theoretical vs experimental circuit design.}
+\end{figure}
+
+\newpage
+
+\subsection{The Code}
+
+I worked on two versions of the code that interfaces with the sensor. The version 1 (V1) is seen in the first code snippet below. The V1 code simply interacts with the sensor, gets a distance reading, and prints it to the serial monitor. I also wanted to expand my knowledge of Arduino libraries, so I also made a V2 of the code that calculates the average and population standard deviation of 100 distance readings. 
+
+\begin{verbatim}
+/* ===== Version 1 of the code ===== */
+#include <Wire.h>
+const int deviceAddress = 0x62;                 
+//Default I2C address
+bool conversionComplete = false;                
+//Boolean trigger
+byte conversionStatus;                          
+//A trigger for waiting for measurements
+byte hi;                                        
+//The first byte in distance measurement
+byte lo;                                        
+//The second byte in the distance measurement
+int distance;                                   
+//The distance value after combining hi and lo
+
+int measureDistance(){                          
+//Define distance measurement function
+  Wire.beginTransmission(deviceAddress);        
+  //Open communications with sensor
+  Wire.write(0x00);                             
+  //Access register 0x00
+  Wire.write(0x04);                             
+  //Write 0x04 to 0x00 register
+  Wire.endTransmission();                       
+  //Close transmission to register 0x00
+
+  while(!conversionComplete){                   
+  //While the sensor conversion isn't complete
+    Wire.beginTransmission(deviceAddress);      
+	//Open communications with sensor
+    Wire.write(0x01);                           
+	//Access register 0x01
+    Wire.endTransmission();                     
+	//Close transmission to register 0x01
+    Wire.requestFrom(deviceAddress, 1);         
+	//Request 1 byte from the sensor
+    conversionStatus = (Wire.read() & 0x01);    
+	//Boolean test to see if the sensor is readable
+    if(!conversionStatus){                      
+	//If the sensor is read
+      conversionComplete = !conversionComplete; 
+	  //Invert the logic of the bool trigger
+    }
+  }
+
+  Wire.beginTransmission(deviceAddress);        
+  //Open communications with sensor
+  Wire.write(0x8F);                             
+  //Access the 0x8F register
+  Wire.endTransmission();                       
+  //Close transmission to register 0x8F
+  Wire.requestFrom(deviceAddress, 2);           
+  //Request 2 bytes from the sensor
+  hi = Wire.read();                             
+  //Read the first byte
+  lo = Wire.read();                             
+  //Read the second byte
+  Wire.endTransmission();                       
+  //Close transmission to sensor
+  return hi*256 + lo;                           
+  //Convert the two bytes to an integer of distance in cm
+}
+
+void setup() {
+  Serial.begin(9600);                           
+  //Start serial monitor, 9600 baud
+  Serial.println("Starting measurements...");   
+  //Print starting statement
+  Wire.begin();                                 
+  //Initialize the I2C communications
+}
+
+void loop() {
+  distance = measureDistance();                 
+  //Measure the distance, save integer value (cm)
+  Serial.print(distance);                     
+  //Print out the distance
+  Serial.println(" cm");
+  delay(10);                                    
+  //Wait a tenth of a second
+}
+\end{verbatim}
+
+\hrulefill
+
+\newpage
+
+\begin{verbatim}
+/* ===== Version 2 of the code ===== */
+#include <Wire.h>
+#include <Statistic.h>
+const int deviceAddress = 0x62;                       
+//Default I2C address
+bool conversionComplete = false;                      
+//Boolean trigger
+byte conversionStatus;                                
+//A trigger for waiting for measurements
+byte hi;                                              
+//The first byte in distance measurement
+byte lo;                                              
+//The second byte in the distance measurement
+statistic::Statistic<float, uint32_t, true> distance; 
+//Define distance object
+
+int measureDistance(){                                
+//Define distance measurement function
+  distance.clear();
+  for(int ii = 0; ii < 100; ii++){
+    Wire.beginTransmission(deviceAddress);            
+	//Open communications with sensor
+    Wire.write(0x00);                                 
+	//Access register 0x00
+    Wire.write(0x04);                                 
+	//Write 0x04 to 0x00 register
+    Wire.endTransmission();                           
+	//Close transmission to register 0x00
+  
+    while(!conversionComplete){                       
+	//While the sensor conversion isn't complete - WAIT
+      Wire.beginTransmission(deviceAddress);          
+	  //Open communications with sensor
+      Wire.write(0x01);                               
+	  //Access register 0x01
+      Wire.endTransmission();                         
+	  //Close transmission to register 0x01
+      Wire.requestFrom(deviceAddress, 1);             
+	  //Request 1 byte from the sensor
+      conversionStatus = (Wire.read() & 0x01);        
+	  //Boolean test to see if the sensor is readable
+      if(!conversionStatus){                          
+	  //If the sensor is read
+        conversionComplete = !conversionComplete;     
+		//Invert the logic of the bool trigger
+      }
+    }
+  
+    Wire.beginTransmission(deviceAddress);            
+	//Open communications with sensor
+    Wire.write(0x8F);                                 
+	//Access the 0x8F register
+    Wire.endTransmission();                           
+	//Close transmission to register 0x8F
+    Wire.requestFrom(deviceAddress, 2);               
+	//Request 2 bytes from the sensor
+    hi = Wire.read();                                 
+	//Read the first byte
+    lo = Wire.read();                                 
+	//Read the second byte
+    Wire.endTransmission();                           
+	//Close transmission to sensor
+    distance.add(hi*256 + lo);                        
+	//Convert the two bytes to an integer of distance in cm
+    delay(5);                                         
+	//Small delay to add numbers together (errors w/o)
+  }
+}
+
+void setup() {
+  Serial.begin(9600);                                 
+  //Start serial monitor, 9600 baud
+  Serial.println("Starting measurements...");         
+  //Print starting statement
+  Wire.begin();                                       
+  //Initialize the I2C communications
+}
+
+void loop() {
+  measureDistance();                                  
+  //Measure the distance, save integer value (cm)
+  Serial.print(distance.average(), 2);                
+  //Print out the average of 100 distances
+  Serial.print(" +/- ");                              
+  //Print out plus minus for visualization
+  Serial.print(distance.pop_stdev(), 2);              
+  //Print out the standard deviations of 100 distances
+  Serial.println(F(" cm"));                           
+  //Include units
+\end{verbatim}
+
+\hrulefill
+
+\newpage
+
+\section{Results}
+
+Seen in Figure \ref{garmingraph} below is a visualization of data collected by the different versions of code interfacing with the Garmin LiDAR sensor. Noteably, the V1 code was taken the day following the collection of the data seen in the V2 output graphs and shows a mean distance reading of approximately 3.5 cm lower than those of the V2. The Garmin was not moved or jostled between when the V2 and V1 measurements was performed.
+
+\begin{figure}[h!]
+	  \centering
+	  \includegraphics[width=.95\linewidth]{../figures/GarminDistances}
+	  \caption{Graphs obtained from the V1 and V2 versions of the code I used to interface with the LiDAR sensor. The top left plot shows the V1 output as raw distance readings. The bottom left plot shows the findings after rejection of outliers. The top right plot shows the output of the V2 code with all data points shown. The bottom right plot shows the output of the V2 code but after post-hoc outlier detection and rejection was performed. Each plot's y-axis is given as a measure of distance in centimeters and each plot's x-axis is the sample number which can be interpreted as a time axis.}
+	  \label{garmingraph}
+\end{figure}
+
+\section{Discussion and Conclusion}
+
+Overall the Garmin LiDAR works well. The code also interfaces with it well and is able to do a passable job of data analysis. The object oriented nature of the statistic library called in the V2 code currently is beyond my comprehension, but I'll work on that. The only concerns I have with the sensor is the occasional outlier. This is of biggest concern in Figure \ref{garmingraph} where the V1 of the code shows a couple of very low measurements which need to be compensated for in some way.
+
+The statistic library doesn't seem to be too heavy on the arduino and the readings appear reasonable. I can't quite read the code and how it works, but I believe it's working as I intend it to. The question of how best to process this data and how best to implement its structure needs to come from end-goal design parameters. If I have a storm surge event that causes water levels to rise in the manhole, how often do I want to sample the level for it to be useful? Should the sample rate by minute-by-minute? Should I have a window of time (i.e. 10 minutes) where I wake, take measurements, and sleep? What is the sampling frequency and how many measurements should make up a given averaged measurement? These are all questions to discuss with a wider group - specifically with those who know more about transient water events and long-term goals for the project.
+
+\end{document}
+
+%==================Figure==================%
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=.8\linewidth]{p51}
+    \caption{This figure shows .}
+    \label{p4}
+\end{figure}
+%================Side-by-Side Figures================%
+\begin{figure}[h!]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.6\linewidth]{p31}
+  \caption{CAPTION}
+  \label{LABEL1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.6\linewidth]{p32}
+  \caption{CAPTION}
+  \label{LABEL2}
+\end{subfigure}
+\label{LABEL}
+\caption{}
+\end{figure}
+%==================Boxed Equations==================%
+\[
+    \boxed{\vec{F}_{net} = m \vec{\ddot{r}}}
+\]
+%==================alphabetic enumeration==================%
+\begin{enumerate}[label=(\alph*)]
+    \item 
+\end{enumerate}

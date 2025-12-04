@@ -1,0 +1,30 @@
+% ========= Document Metafiles (Do Not Reorder!) ========== %
+\input{metafiles/preamble.tex}
+\input{metafiles/commands.tex}
+
+% ==================== DOCUMENT BEGIN ===================== %
+
+\begin{document}
+
+% ====================== TITLE PAGE ======================= %
+
+\subfile{entries/00_01_titlePage}
+
+% ======================== ENTRIES ======================== %
+
+\subfile{entries/11_11_ArduinoTempSensor}
+\subfile{entries/11_24_GarminLIDAR}
+\subfile{entries/11_27_MosSensorOverview}
+
+% ================= INDEX & BIBLIOGRAPHY ================== %
+
+\clearpage\printindex
+
+\newpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliography}
+\printbibliography[title={Bibliography}]
+
+% ===================== DOCUMENT END ====================== %
+
+\end{document}
