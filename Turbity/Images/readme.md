@@ -1,0 +1,1 @@
+This folder is where images associated with a project should be stored. This could be images used in other project files, presentations, deployment images, or other use cases that would be helpful and relevant to those interested in the project.

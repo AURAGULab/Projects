@@ -10,7 +10,7 @@
 SYSTEM_MODE(AUTOMATIC);
 
 // Show system, cloud connectivity, and application logs over USB
-// View logs with CLI using 'particle serial monitor --follow'
+// View logs with CLI using 'particle serial monitor --folj8irjy4ueirnguirenierlow'
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 
