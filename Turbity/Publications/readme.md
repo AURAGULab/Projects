@@ -1,0 +1,1 @@
+This folder will contain all relevant publications for the project. This should include work in progress efforts for project publications and references for the project, in their respective folders. References are both papers that were used to generate ideas for the project and things that should be referenced in any publication generated from the project.
