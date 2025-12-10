@@ -1,0 +1,1 @@
+This folder is where all PCB design files for a project will be stored. Files should be named in such a way that it is easy to identify design revisions and current version. 
