@@ -1,0 +1,219 @@
+\documentclass[../Notebook.tex]{subfiles}
+\begin{document}
+
+\chapter{11/11/2025 Programming Common Arduino Temperature Sensors}
+
+
+\section{Notes Overview}
+
+A detailed description of building and working with two different temperature sensors - the TC74 using I2C and the LM35 using analog measurements - on an Arduino microcontroller are detailed.
+
+\hfill \break
+\noindent Keywords: TC74 temperature sensor \index{TC74 temperature sensor}, LM35 temperature sensor \index{LM35 temperature sensor}, sensors \index{sensors}, chemical sensing \index{chemical sensing}
+
+\section{Introduction}
+
+The vents behind the office are constantly spewing steam from them. The chemical composition of these clouds is of interest to me as I am concerned about what things we may be exposed to on a daily - hourly - moment-to-moment basis. One of my first steps in building a sensor that can remotely sample components of these clouds is to get hands-on with sensors and build up a repertoire of knowledge that will be used to build a sensor array. To start, I wanted to look at temperature sensing. While temperature sensing isn’t incredibly helpful in the analysis of steam, all great endeavors must start somewhere.
+
+\section{Materials and Methods}
+
+\subsection{The Hardware}
+
+This project involves the use of an Arduino UNO, two 4.7k$\Omega$ resistors which act as pull-ups for the HC74, the I2C-based \href{https://ww1.microchip.com/downloads/aemDocuments/documents/APID/ProductDocuments/DataSheets/21462D.pdf}{TC74 temperature sensor}, and the analog-based \href{https://www.ti.com/lit/ds/symlink/lm35.pdf?ts=1762793949838&ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FLM35%253Futm_source%253Dgoogle%2526utm_medium%253Dcpc%2526utm_campaign%253Dasc-sens-null-44700045336317185_prodfolderdynamic-cpc-pf-google-ww_en_int%2526utm_content%253Dprodfolddynamic%2526ds_k%253DDYNAMIC+SEARCH+ADS%2526DCM%253Dyes%2526gclsrc%253Daw.ds%2526gad_source%253D1%2526gad_campaignid%253D6467375899%2526gbraid%253D0AAAAAC068F3kkiNakzETNmw78w4z_4NMN%2526gclid%253DCjwKCAiAt8bIBhBpEiwAzH1w6VngZRupCNJWhkuPwMsLB9312aWNH-ExvFW3nr-oVSBKflH5liXrtxoCp88QAvD_BwE}{LM35 temperature sensor}. These two ICs have pinouts as shown in Figures \ref{TC74pinOut} and \ref{LM35pinOut} below.
+
+\begin{figure}[h!]
+	\centering
+	\begin{subfigure}{.5\textwidth}
+	  \centering
+	  \includegraphics[width=.24\linewidth]{../figures/TC74-temperature-sensor-pinout}
+	  \caption{The pinout of the TC74 temperature sensor}
+	  \label{TC74pinOut}
+	\end{subfigure}%
+	\begin{subfigure}{.5\textwidth}
+	  \centering
+	  \includegraphics[height=.6\linewidth]{../figures/LM35-temperature-sensor-pinout}
+	  \caption{The pinout of the LM35 temperature sensor}
+	  \label{LM35pinOut}
+	\end{subfigure}
+	\caption{The different different temperature sensors and their pinout diagrams}
+\end{figure}
+
+\subsection{The Circuit(s)}
+
+Proposed circuits derived from online resources and the datasheets for the two ICs are shown in Figures \ref{TC74circuit} and \ref{LM35circuit} below. A picture of the working circuit is also shown in Figure \ref{tempCircRealPic} below.
+
+\begin{figure}[h!]
+	  \centering
+	  \includegraphics[width=.6\linewidth]{../figures/I2C-TC74-temperature-sensor-circuit}
+	  \caption{The basic circuit of the TC74 temperature sensor hooked up to the Arduino Uno is shown. Illustrated in the figure is the exact pins to be used as well as the pull up resistors required for I2C communications. \textbf{NOTE:} This circuit appears different from the circuit I actually built. Namely, the two pull up resistors in the circuit that I built are running between 5V and the SDA and SCLK pins not between the pins and Arduino.}
+	  \label{TC74circuit}
+\end{figure}
+
+\begin{figure}[h!]
+	  \centering
+	  \includegraphics[width=.95\linewidth]{../figures/LM35-temperature-sensor-diagrams}
+	  \caption{Two possible circuits for the LM35 are shown with a basic temperature sensor shown in the left diagram and a wider range temperature sensor involving a voltage divider being shown at right.}
+	  \label{LM35circuit}
+\end{figure}
+
+\begin{figure}[h!]
+	  \centering
+	  \includegraphics[width=.8\linewidth]{../figures/tempCircPic}
+	  \caption{A picture of the working circuit. The picture shows the set up used to interface with the TC74 (left IC) and the LM35 (right IC) sensors.}
+	  \label{tempCircRealPic}
+\end{figure}
+
+\newpage
+\phantom{o}
+\newpage
+
+\subsection{The Code}
+
+Below is the code used in programming the Arduino Uno to communicate with the temperature sensors.
+
+\begin{verbatim}
+#include <Wire.h>
+int ii;                                             
+// Define an index that will be used in for loops
+int reg;                                            
+// Define the reg(ister) variable that will store the I2C address
+long tempIIC  = 0;                                  
+// This long variable will store the sum of all I2C temp readings
+long tempAnalog = 0;                                
+// This long variable will store the sum of all analog temp readings
+float avgIicTemp;                                   
+// This float will contain the average temp of the I2C sensor
+float avgAnaTemp;                                   
+// This float will contain the average temp of the analog sensor
+
+void setup() {
+  Wire.begin();                                     
+  // Set up I2C communications
+  Serial.begin(9600);                               
+  // Start the serial monitor
+  for(ii =0; ii<128; ii++){                         
+  // Loop over all possible addresses
+  Wire.beginTransmission(ii);                       
+  // Ping the IC's register at a specific address
+    if(Wire.endTransmission()==0){                  
+	// If there is an ACK from the IC
+      Serial.print("The temperature register is "); 
+	  // Print out message
+      Serial.println(ii, HEX);                      
+	  // Print out the hexadecimal representation of the register address
+      reg = ii;                                     
+	  // Save the register address (0x4D)
+      break;                                        
+	  // Break out of loop when address is found
+    }
+    delay(10);
+  }
+  Wire.write(0x01);                                 
+  // Tell replica to use specific address
+  Wire.write(0x00);                                 
+  // Configure the replica
+  Wire.endTransmission();                           
+  // Stop transmission
+}
+
+void loop() {
+  for(ii=0; ii<500; ii++){                          
+  // Perform ii (500) iterations of measurements
+    Wire.beginTransmission(reg);                    
+	// Set up transmission to IC
+    Wire.write(0x00);                               
+	// Tell replica it's about to be read
+    Wire.endTransmission();                         
+	// Stop transmission
+    Wire.requestFrom(reg, 1);                       
+	// Request 1 byte of information (temperature) from the IC
+    tempIIC += Wire.read();                         
+	// Read in the information from the I2C sensor and compound add
+    tempAnalog += analogRead(A0);                   
+	// Read the analog voltage reading from the analog sensor and compound add
+  }
+
+  avgIicTemp = tempIIC/float(ii);                   
+  // Average the compound sum over ii iterations
+  avgAnaTemp = (tempAnalog/float(ii))*(5000.0/1023.0)/10.0; 
+  // Average the readings, multiply by the ADC step size, 
+  //divide by conversion factor (10mV/C)
+
+  // Printing the average temperature readings
+  Serial.print("My average I2C temperature is:     ");
+  Serial.println(avgIicTemp, 2);
+  Serial.print("My average analog temperature is:  ");
+  Serial.println(avgAnaTemp, 2);
+
+  // Reset the temperature readings so a new cumulative sum can be performed
+  tempIIC = 0;
+  tempAnalog = 0;
+}
+\end{verbatim}
+
+\section{Results}
+
+\subsection{Serial Output from Code}
+
+Using the code shown above, I was able to obtain outputs to the serial monitor as seen below. Over 1010 measurements of 500 averaged temperature readings in a cool, temperature-controlled room, the TC74  showed a value of $23.27\pm0.29 ^\circ\text{C}$ and the LM35 showed a temperature reading of $22.51\pm0.06 ^\circ\text{C}$
+
+\begin{verbatim}
+The temperature register is 4D
+My average I2C temperature is:     22.00
+My average analog temperature is:  21.66
+My average I2C temperature is:     22.49
+My average analog temperature is:  21.65
+\end{verbatim}
+
+\subsection{Consistency of Temperature Readings Over Time}
+
+Seen in Figure \ref{tempreadings} below is a plot of temperature readings over time. As can be seen in the figure, the analog LM35 does not run into bitwise errors associated with the temperature readings. This is because of the precision of the TC74 whose resolution is to 1 degree celcius. 
+
+\begin{figure}[h!]
+	  \centering
+	  \includegraphics[width=.95\linewidth]{../figures/TempSensorData}
+	  \caption{A scatter plot of over 34,000 averaged readings of the TC74 I2C temperature sensor and the LM35 analog temperature sensor.}
+	  \label{tempreadings}
+\end{figure}
+
+\section{Discussion and Conclusions}
+
+This brief overview of how to interface with a couple of well known temperature sensors provides a basis for further work in building a sensor array. I would like to note a couple of things, however. First, whenn I hooked up the LM35 to analog pin \code{A5}, I couldn't get any reading that made sense. This could entirely be the fault of the Arduino I was using, but it is worth noting that when I moved to pin \code{A0}, I was able to get the readings without any further issue. 
+
+The second thing to note is that the TC74 appears to fluctuate more in its measurements. I believe this to be caused by the bitwise resolution of 1$^\circ$C whereas the LM35 uses the analog-to-digital converter on the arduino as its resolution. This means, with a headspace of 5V, and the arduino's 10-bit ADC, the resolution of the analog sensor is $5000mV/1023 = 4.89 mV$. Given the conversion factor of $10mV/C$ that means we can detect changes in temperature of $4.89 mV/ (10mV/C) = 0.489^\circ C$. This means that the LM35 has over twice the resolution of the TC74! I suppose that's what you get when you are 38\% (\$0.84) more expesnive.
+
+\end{document}
+
+%==================Figure==================%
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=.8\linewidth]{p51}
+    \caption{This figure shows .}
+    \label{p4}
+\end{figure}
+%================Side-by-Side Figures================%
+\begin{figure}[h!]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.6\linewidth]{p31}
+  \caption{CAPTION}
+  \label{LABEL1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.6\linewidth]{p32}
+  \caption{CAPTION}
+  \label{LABEL2}
+\end{subfigure}
+\label{LABEL}
+\caption{}
+\end{figure}
+%==================Boxed Equations==================%
+\[
+    \boxed{\vec{F}_{net} = m \vec{\ddot{r}}}
+\]
+%==================alphabetic enumeration==================%
+\begin{enumerate}[label=(\alph*)]
+    \item 
+\end{enumerate}
