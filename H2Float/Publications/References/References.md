@@ -1,0 +1,1 @@
+This file will contain all references found during the course of the project. This should include things that inspired the project, things that were found in initial reseearch, and any other useful references that are found during the coure of the project.
