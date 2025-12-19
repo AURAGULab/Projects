@@ -76,7 +76,7 @@ void loop()
   Serial.print(SRDG_LEDOff);
   Serial.print("\t");
   Serial.println(deltaRDGOnOff);
-  ToTingSpeak(SRDG_LEDOn, SRDG_LEDOff, deltaRDGOnOff);
+  ToThingSpeak(SRDG_LEDOn, SRDG_LEDOff, deltaRDGOnOff);
 }
 
 int configAndRead()
