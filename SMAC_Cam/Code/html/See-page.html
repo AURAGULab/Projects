@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Augusta Canal Seepage</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            color: #333;
+        }
+
+        .overlay {
+            background: rgba(0, 0, 0, 0.4);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #2c5282;
+        }
+
+        h1 {
+            color: #1a365d;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #4a5568;
+            font-size: 1.1em;
+            font-style: italic;
+        }
+
+        .selector-section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            border-color: #4299e1;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #2c5282;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        .content-display {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .content-display.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .location-title {
+            color: #1a365d;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .description {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 1.05em;
+            padding: 15px;
+            background: #f7fafc;
+            border-left: 4px solid #4299e1;
+            border-radius: 4px;
+        }
+
+        .image-container {
+            text-align: center;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+            font-size: 1.2em;
+        }
+
+        .placeholder-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .location-title {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="container">
+            <header>
+                <h1>💧 Augusta Canal See-page 💧</h1>
+                <p class="subtitle">Images captured by SMAC cam. Learn more on <a href="https://github.com/AURAGULab/Projects/tree/main/SMAC_Cam" target="_blank" style="color: #2c5282; text-decoration: none; font-weight: 600;">Github</a></p>
+            </header>
+
+            <div class="selector-section">
+                <label for="locationSelect">Select Seepage Site:</label>
+                <select id="locationSelect">
+                    <option value="">-- Choose a location --</option>
+                    <option value="location1">Aqueduct Park</option>
+                    <option value="location2">Reed Creek Wastegate (Coming soon)</option>
+                    <option value="location3">CLICS</option>
+                    <option value="location4">Prototyping</otion>
+                    <option value="location5">Random_Spot</option>
+                    <option value="location6">Backyard</option>
+                </select>
+            </div>
+
+            <div id="placeholder" class="placeholder">
+                <div class="placeholder-icon">📷</div>
+                <p>Please select a location from the dropdown above to view inspection details and images.</p>
+            </div>
+
+            <div id="location1" class="content-display">
+                <h2 class="location-title">Aqueduct Park</h2>
+                <div class="description">
+                    There are multiple points in the aqueduct that are seeping. We have combined these flows into one and are now able to gather seepage information by looking at one point shown below.
+                </div>
+                <div class="image-container">
+                    <img src="SMAC.jpg" alt="Aqueduct Park Seepage">
+                </div>
+            </div>
+
+            <div id="location2" class="content-display">
+                <h2 class="location-title">Reed Creek Wastegate (Coming soon)</h2>
+                <div class="description">
+                    Projected for Q1 2026
+                </div>
+                <div class="image-container">
+                    <img src="test.jpg" alt="Reed Creek Wastegate">
+                </div>
+            </div>
+
+            <div id="location3" class="content-display">
+                <h2 class="location-title">CLICS </h2>
+                <div class="description">
+                    Images from CLICS. CLICS is a handheld camera used to scout good deployement options for a loction before setting up a SMAC cam.
+                </div>
+                <div class="image-container">
+                    <img src="CLICS.jpg" alt="CLICS">
+                </div>
+            </div>
+
+            <div id="location4" class="content-display">
+                <h2 class="location-title">Prototyping</h2>
+                <div class="description">
+                    Used for fixing bugs and testing new features. There is no telling what image lies below.
+                </div>
+                <div class="image-container">
+                    <img src="2SMAC.jpg" alt="Prototyping">
+                </div>
+            </div>
+
+    <div id="location5" class="content-display">
+        <h2 class="location-title">Random_Spot</h2>
+        <div class="description">
+            This is the first Image sent using the new SMAC-U protocol. Now the only setup required for a new device is giving it a name. Woot Woot!
+        </div>
+        <div class="image-container">
+            <img src="Random_Spot.jpg" alt="Random_Spot">
+        </div>
+    </div>
+
+    <div id="location6" class="content-display">
+        <h2 class="location-title">Backyard</h2>
+        <div class="description">
+            Backyard
+        </div>
+        <div class="image-container">
+            <img src="Backyard.jpg" alt="Backyard">
+        </div>
+    </div>
+        </div>
+    </div>
+
+    <script>
+        const locationSelect = document.getElementById('locationSelect');
+        const placeholder = document.getElementById('placeholder');
+        const contentDisplays = document.querySelectorAll('.content-display');
+
+        locationSelect.addEventListener('change', function() {
+            const selectedValue = this.value;
+
+            // Hide all content displays
+            contentDisplays.forEach(display => {
+                display.classList.remove('active');
+            });
+
+            if (selectedValue === '') {
+                // Show placeholder if no selection
+                placeholder.style.display = 'block';
+            } else {
+                // Hide placeholder and show selected content
+                placeholder.style.display = 'none';
+                const selectedContent = document.getElementById(selectedValue);
+                if (selectedContent) {
+                    selectedContent.classList.add('active');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
