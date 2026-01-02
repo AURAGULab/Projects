@@ -11,6 +11,8 @@ SYSTEM_MODE(AUTOMATIC);
 // View logs with CLI using 'particle serial monitor --follow'
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
+bool TS_on= false; 
+
 byte enableReg      = 0x00; //Enable register address
 byte controlReg     = 0x01; //Control register address
 byte IDReg          = 0x12; //ID register address
@@ -21,12 +23,27 @@ float SRDG_LEDOff   = 0;    //Sensor 90 Reading - LED Off
 const int LED       = D3;   //Output pin to control IR LED
 
 //Things for ThingSpeak******************************************************************************
-unsigned long myChannelNumber = *Your channel number here*;
-const char * myWriteAPIKey = "Your api key here";
+unsigned long myChannelNumber = 123456789;
+const char * myWriteAPIKey = "Your channel ID";
 TCPClient client;
+
+int SetTS(String cmd) //Toggles Thing Speak sending 
+{
+  if(cmd == "1")
+  {
+    TS_on = true;
+    return 1;
+  }
+  else
+  {
+    TS_on = false;
+    return 0;
+  }
+}
 
 void setup() 
 {
+  Particle.function("Pub to TS?", SetTS)
   Serial.begin(9600);
   delay(500);
   Wire.begin();            //Start I2C comms
@@ -54,7 +71,15 @@ void setup()
   Serial.print("0x");
   Serial.println(device, HEX);
   Serial.println("***********************");
-  delay(1000);
+  delay(10000);
+  //Adding labels for console output
+  Serial.print("SRDG_LEDOn");
+  Serial.print("\t");
+  Serial.print("SRDG_LEDOff");
+  Serial.print("\t");
+  Serial.print("deltaRDGOnOff");
+  Serial.print("\t");
+  Serial.println("NTU");
 }
 
 void loop() 
@@ -70,13 +95,25 @@ void loop()
   SRDG_LEDOff = readS();                 //Read S90
   //Compute difference and display
   float deltaRDGOnOff = SRDG_LEDOn - SRDG_LEDOff;
-  //float NTU = c2*deltaRDGOnOff*deltaRDGOnOff + c1*deltaRDGOnOff + c0;  //Quadratic calibration
+  //Variables for fit 
+  float c2 = 0.2060;
+  float c1 = 51.8490;
+  float c0 = 3258.9000;
+  float NTU = (c2*deltaRDGOnOff*deltaRDGOnOff) - (c1*deltaRDGOnOff) + c0;  //Quadratic calibration
+  
   Serial.print(SRDG_LEDOn);
   Serial.print("\t");
   Serial.print(SRDG_LEDOff);
   Serial.print("\t");
-  Serial.println(deltaRDGOnOff);
-  ToTingSpeak(SRDG_LEDOn, SRDG_LEDOff, deltaRDGOnOff);
+  Serial.print(deltaRDGOnOff);
+  Serial.print("\t");
+  Serial.println(NTU);
+  
+  if(TS_on)
+  {
+      ToThingSpeak(SRDG_LEDOn, SRDG_LEDOff, deltaRDGOnOff);
+  }
+  
 }
 
 int configAndRead()
