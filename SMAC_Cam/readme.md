@@ -17,6 +17,13 @@
  Current researcher: Patrick Rimbey       Email: primbey@augusta.edu <br>
  Project supervisor: Dr. Joseph Hauger    Email: jhauger@augusta.edu
 
+# CLICs
+<div align="center">
+<img src="https://raw.githubusercontent.com/AURAGULab/Projects/main/SMAC_Cam/Images/CLICS_Front.png" width="20%"/>
+</div>
+
+CLICs (Camera Looking into Canal Seepage) is the prototype of SMAC. It functions like a typical camera, point and CLIC. I initially created this device to test how the camera worked, but it is a great tool to have when prototyping new features. 
+
  ## Focus as of 12/01/2025 - Battery Life 
 
  With our current solar charging and low power measures established we are not hitting out desired lifetime. Currently we are getting a max of two weeks for our device. 
