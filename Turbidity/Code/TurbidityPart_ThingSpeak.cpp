@@ -23,10 +23,11 @@ float SRDG_LEDOff   = 0;    //Sensor 90 Reading - LED Off
 const int LED       = D3;   //Output pin to control IR LED
 
 //Things for ThingSpeak******************************************************************************
+//This needs updating if you want to push to ThingSpeak
 unsigned long myChannelNumber = 123456789;
 const char * myWriteAPIKey = "Your channel ID";
 TCPClient client;
-
+//
 int SetTS(String cmd) //Toggles Thing Speak sending 
 {
   if(cmd == "1")
@@ -77,9 +78,9 @@ void setup()
   Serial.print("\t");
   Serial.print("SRDG_LEDOff");
   Serial.print("\t");
-  Serial.print("deltaRDGOnOff");
-  Serial.print("\t");
-  Serial.println("NTU");
+  Serial.println("deltaRDGOnOff");
+  //Serial.print("\t");
+  //Serial.println("NTU");
 }
 
 void loop() 
@@ -105,15 +106,15 @@ void loop()
   Serial.print("\t");
   Serial.print(SRDG_LEDOff);
   Serial.print("\t");
-  Serial.print(deltaRDGOnOff);
-  Serial.print("\t");
-  Serial.println(NTU);
+  Serial.println(deltaRDGOnOff);
+  //Serial.print("\t");
+  //Serial.println(NTU);
   
-  if(TS_on)
+  /*if(TS_on)
   {
       ToThingSpeak(SRDG_LEDOn, SRDG_LEDOff, deltaRDGOnOff);
   }
-  
+  */
 }
 
 int configAndRead()
