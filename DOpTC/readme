@@ -1,0 +1,8 @@
+DOpTC - Dissolved oxygen, ORP, pH, Temperature, and Conductivity
+This project was developed as a lower cost alternative to commercial water quality sensors using Atlas Scientific and DFRobot sensor probes. 
+Data is transmitted using Particle (Boron boards) to a dashboard on ThingSpeak or Graphana.
+Current student researchers: Victoria Makowski, Nelson Lau, Mason Leavins
+Previous team members: Emma Herndon
+
+Current code files:
+DO and Temp: mosfet-do-channel2
